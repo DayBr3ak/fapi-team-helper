@@ -48,7 +48,12 @@ export default function JSONDisplay({
       <div className="grid-left">
         <Typography variant={"h5"}>Best Teams</Typography>
         <div>
-          <input type="checkbox" id="usePetRank" onChange={setUsePetRank} />
+          <input
+            type="checkbox"
+            id="usePetRank"
+            onChange={setUsePetRank}
+            checked={usePetRank}
+          />
           <label htmlFor={"usePetRank"}>Use rank into damage calculation</label>
         </div>
         {groups.reduce((accum, group, index) => {
