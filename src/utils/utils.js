@@ -4,13 +4,13 @@ export const SYNERGY_MOD_STEP = 0.25;
 
 export const PROJECT_PATH = "/fapi-team-helper";
 
-export function calculatePetBaseDamage(pet, defaultRank) {
-  const rankCount = defaultRank ? defaultRank : pet?.Rank;
+export function calculatePetBaseDamage(pet, usePetRank = false) {
+  const rankCount = usePetRank ? pet?.Rank : 0;
   const result = pet?.BaseDungeonDamage * (1.0 + rankCount * 0.05);
   return Number(result);
 }
 
-export const calculateGroupScore = (group, defaultRank) => {
+export const calculateGroupScore = (group, usePetRank = false) => {
   let groupScore = 0;
   let dmgCount = 0;
   let timeCount = 0;
@@ -24,7 +24,7 @@ export const calculateGroupScore = (group, defaultRank) => {
   const typeCounts = {};
 
   group.forEach((pet) => {
-    groupScore += calculatePetBaseDamage(pet, defaultRank);
+    groupScore += calculatePetBaseDamage(pet, usePetRank);
     if (pet.BonusList.some((bonus) => bonus.ID === 1013)) {
       dmgCount++;
     }
@@ -107,18 +107,9 @@ function getCombinations(array, k) {
   );
 }
 
-export const findBestGroups = (petsCollection, defaultRank) => {
+export const findBestGroups = (petsCollection, usePetRank = false) => {
   const k = 4; // Size of each group
   const numGroups = 6; // Number of groups to find
-  const memo = {};
-
-  const memoizedGroupScore = (group) => {
-    const key = group.map((pet) => pet.ID).join(",");
-    if (!memo[key] || memo[key]) {
-      memo[key] = calculateGroupScore(group)?.groupScore;
-    }
-    return memo[key];
-  };
 
   let bestGroups = [];
   for (let g = 0; g < numGroups; g++) {
@@ -130,8 +121,9 @@ export const findBestGroups = (petsCollection, defaultRank) => {
       break;
     }
     const bestGroup = combinations.reduce((best, group) => {
-      const score = memoizedGroupScore(group);
-      return score > memoizedGroupScore(best) ? group : best;
+      const score = calculateGroupScore(group, usePetRank)?.groupScore;
+      const bestScore = calculateGroupScore(best, usePetRank)?.groupScore;
+      return score > bestScore ? group : best;
     }, combinations[0]);
 
     if (bestGroup) {

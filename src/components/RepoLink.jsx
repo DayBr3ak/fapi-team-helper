@@ -1,10 +1,10 @@
 import React from "react";
 import "./RepoLink.css";
 
-const RepoLink = () => {
+export default function RepoLink() {
   return (
     <a
-      href="https://github.com/trigunshin/fapi"
+      href="https://github.com/DayBr3ak/fapi-team-helper"
       target="_blank"
       rel="noopener noreferrer"
       className="repo-link"
@@ -12,6 +12,4 @@ const RepoLink = () => {
       View on GitHub
     </a>
   );
-};
-
-export default RepoLink;
+}

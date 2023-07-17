@@ -39,7 +39,7 @@ const FileUpload = ({ onData }) => {
         client-side.
       </h3>
       <h3>currentRank*baseDmg*groupBonus; rank &gt; 0 to be considered</h3>
-      <input type="file" onChange={handleFileUpload} />
+      <input type="file" accept=".txt" onChange={handleFileUpload} />
     </div>
   );
 };

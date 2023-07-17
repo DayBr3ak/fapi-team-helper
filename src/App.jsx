@@ -34,16 +34,11 @@ const theme = createTheme({
 
 const defaultPetSelection = petNameArray.map((petData) => petData.petId);
 
-let groupCache = {};
-function setGroupCache(newCache) {
-  groupCache = newCache;
-}
-
 function App() {
   const [data, setData] = useState(null);
   const [groups, setGroups] = useState([]);
-  const [defaultRank, setDefaultRank] = useState(0);
-  const [includeLocked, setIncludeLocked] = useState(false);
+  const [usePetRank, setUsePetRank] = useState(false);
+  const [includeLocked] = useState(false);
   const [selectedItems, setSelectedItems] = useState(defaultPetSelection);
   const [tabSwitch, setTabSwitch] = useState(0);
   const [weightMap, setWeightMap] = useState(DefaultWeightMap);
@@ -51,11 +46,19 @@ function App() {
   const handleItemSelected = (items) => {
     setSelectedItems(items);
 
-    if (items) handleGroups(data, items);
+    if (items) {
+      handleGroups(data, items, usePetRank);
+    }
   };
 
   const setWeights = (newWeightMap) => {
     setWeightMap({ ...newWeightMap });
+  };
+
+  const onUsePetRankChange = (e) => {
+    const checked = e.target.checked;
+    handleGroups(data, selectedItems, checked);
+    setUsePetRank(checked);
   };
 
   const selectComponent = () => {
@@ -72,6 +75,8 @@ function App() {
             groups={groups}
             selectedItems={selectedItems}
             handleItemSelected={handleItemSelected}
+            usePetRank={usePetRank}
+            setUsePetRank={onUsePetRankChange}
           />
         );
       case 0:
@@ -83,20 +88,18 @@ function App() {
 
   const handleData = (uploadedData) => {
     setData(uploadedData);
-    setGroupCache({});
-    console.log(uploadedData);
     const positiveRankedPets = uploadedData.PetsCollection.filter((pet) => {
-      const isValidRank = defaultRank ? true : !!pet.Rank;
+      const isValidRank = !!pet.Rank;
       const isValidLocked = includeLocked ? true : !!pet.Locked;
       return isValidRank && isValidLocked;
     }).map((pet) => pet.ID);
     setSelectedItems(positiveRankedPets);
 
-    handleGroups(uploadedData, positiveRankedPets);
+    handleGroups(uploadedData, positiveRankedPets, usePetRank);
     if (tabSwitch === 0) setTabSwitch(1); // move upload to expedition when done
   };
 
-  const handleGroups = (data, selectedItems) => {
+  const handleGroups = (data, selectedItems, usePetRank1) => {
     const petData = data?.PetsCollection || [];
     const selectedItemsById = petData.reduce((accum, item) => {
       accum[parseInt(item.ID, 10)] = item;
@@ -104,15 +107,8 @@ function App() {
     }, {});
 
     const localPets = selectedItems.map((petId) => selectedItemsById[petId]);
-    const keyString = selectedItems.sort().join(",");
-    let groups = groupCache[keyString];
-    if (groups) {
-      setGroups(groups);
-    } else {
-      groups = findBestGroups(localPets, defaultRank);
-      setGroupCache({ ...groupCache, [keyString]: groups });
-      setGroups(groups);
-    }
+    const groups = findBestGroups(localPets, usePetRank1);
+    setGroups(groups);
   };
 
   return (

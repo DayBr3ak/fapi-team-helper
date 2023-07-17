@@ -14,9 +14,9 @@ import {
   calculatePetBaseDamage,
 } from "../utils/utils";
 
-function ScoreSection({ data, group, totalScore }) {
+function ScoreSection({ data, group, totalScore, usePetRank }) {
   const { baseGroupScore, dmgCount, timeCount, synergyBonus } =
-    calculateGroupScore(group);
+    calculateGroupScore(group, usePetRank);
   return (
     <React.Fragment>
       <ul>
@@ -31,21 +31,26 @@ function ScoreSection({ data, group, totalScore }) {
   );
 }
 
-const JSONDisplay = ({
+export default function JSONDisplay({
   data,
   groups,
   selectedItems,
   handleItemSelected,
   weightMap,
-}) => {
+  usePetRank,
+  setUsePetRank,
+}) {
   if (!!data === false || !!data.PetsCollection === false) {
     return <div>Loading...</div>; // You can replace this with null or another element if you prefer
   }
-
   return (
     <div className="grid-container">
       <div className="grid-left">
         <Typography variant={"h5"}>Best Teams</Typography>
+        <div>
+          <input type="checkbox" id="usePetRank" onChange={setUsePetRank} />
+          <label htmlFor={"usePetRank"}>Use rank into damage calculation</label>
+        </div>
         {groups.reduce((accum, group, index) => {
           const score = calculateGroupScore(group).groupScore;
           const displayedDamage = group
@@ -65,6 +70,7 @@ const JSONDisplay = ({
                   data={data}
                   group={group}
                   totalScore={totalScore}
+                  usePetRank={usePetRank}
                 />
               </span>
             </div>
@@ -116,5 +122,4 @@ const JSONDisplay = ({
       </div>
     </div>
   );
-};
-export default JSONDisplay;
+}
