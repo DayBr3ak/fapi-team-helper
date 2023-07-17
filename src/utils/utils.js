@@ -78,46 +78,49 @@ export const calculateGroupScore = (group, usePetRank = false) => {
   };
 };
 
-function getCombinations(array, k) {
-  const combinations = new Set();
-  const f = (start, prevCombination) => {
-    if (
-      prevCombination.length > 0 &&
-      prevCombination.length <= k &&
-      prevCombination.every((pet) => pet?.ID !== undefined)
-    ) {
-      const sortedIds = prevCombination
-        .sort((a, b) => a.ID - b.ID)
-        .map((pet) => pet.ID)
-        .join(",");
-      combinations.add(sortedIds);
+function findCombinations(array, length = 4) {
+  // Base case: If the desired length is 0, return an array containing an empty array
+  if (length === 0) {
+    return [[]];
+  }
+
+  // Base case: If the array is empty or the desired length is greater than the array length, return an empty array
+  if (array.length === 0 || length > array.length) {
+    return [];
+  }
+
+  const combinations = [];
+
+  // Iterate through each element in the array
+  for (let i = 0; i < array.length; i++) {
+    const currentElement = array[i];
+
+    // Find all combinations of length - 1 for the rest of the array
+    const remainingCombinations = findCombinations(
+      array.slice(i + 1),
+      length - 1
+    );
+
+    // Append the current element to each combination
+    for (let j = 0; j < remainingCombinations.length; j++) {
+      const combination = [currentElement, ...remainingCombinations[j]];
+      combinations.push(combination);
     }
-    if (prevCombination.length === k) {
-      return;
-    }
-    for (let i = start; i < array.length; i++) {
-      f(i + 1, [...prevCombination, array[i]]);
-    }
-  };
-  f(0, []);
-  return Array.from(combinations).map((combination) =>
-    combination
-      .split(",")
-      .map((id) => array.find((pet) => pet.ID === parseInt(id)))
-  );
+  }
+
+  return combinations;
 }
 
 export const findBestGroups = (petsCollection, usePetRank = false) => {
-  const k = 4; // Size of each group
   const numGroups = 6; // Number of groups to find
 
-  let bestGroups = [];
+  const bestGroups = [];
+
+  let petsCollectionCopy = petsCollection.slice();
+
   for (let g = 0; g < numGroups; g++) {
-    const combinations = getCombinations(
-      petsCollection,
-      Math.min(k, petsCollection.length)
-    );
-    if (combinations.length === 0) {
+    const combinations = findCombinations(petsCollectionCopy);
+    if (combinations.length < 1) {
       break;
     }
     const bestGroup = combinations.reduce((best, group) => {
@@ -128,7 +131,10 @@ export const findBestGroups = (petsCollection, usePetRank = false) => {
 
     if (bestGroup) {
       bestGroups.push(bestGroup);
-      petsCollection = petsCollection.filter((pet) => !bestGroup.includes(pet));
+      const bestGroupIds = bestGroup.map((x) => x.ID);
+      petsCollectionCopy = petsCollectionCopy.filter(
+        (pet) => !bestGroupIds.includes(pet.ID)
+      );
     }
   }
 
