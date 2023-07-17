@@ -18,6 +18,7 @@ const FileUpload = ({ onData }) => {
 
       try {
         const parsedJson = JSON.parse(jsonString);
+        console.info(parsedJson);
         onData(parsedJson);
       } catch (error) {
         console.error("Invalid JSON:", error);

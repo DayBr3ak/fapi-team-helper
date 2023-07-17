@@ -7,7 +7,8 @@ export const PROJECT_PATH = "/fapi-team-helper";
 export function calculatePetBaseDamage(pet, usePetRank = false) {
   const rankCount = usePetRank ? pet?.Rank : 0;
   const result = pet?.BaseDungeonDamage * (1.0 + rankCount * 0.05);
-  return Number(result);
+  const r2 = (pet?.BaseDungeonDamage / 4.0) * (rankCount + 20);
+  return Number(r2);
 }
 
 export const calculateGroupScore = (group, usePetRank = false) => {
