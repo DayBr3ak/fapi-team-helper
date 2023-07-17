@@ -57,7 +57,8 @@ function App() {
 
   const onUsePetRankChange = (e) => {
     const checked = e.target.checked;
-    handleGroups(data, selectedItems, checked);
+    const selItems = handleSelected(data, checked);
+    handleGroups(data, selItems, checked);
     setUsePetRank(checked);
   };
 
@@ -86,15 +87,19 @@ function App() {
     }
   };
 
-  const handleData = (uploadedData) => {
-    setData(uploadedData);
-    const positiveRankedPets = uploadedData.PetsCollection.filter((pet) => {
-      const isValidRank = !!pet.Rank;
+  const handleSelected = (data, usePetRank = false) => {
+    const positiveRankedPets = data.PetsCollection.filter((pet) => {
+      const isValidRank = usePetRank ? !!pet.Rank : true;
       const isValidLocked = includeLocked ? true : !!pet.Locked;
       return isValidRank && isValidLocked;
     }).map((pet) => pet.ID);
     setSelectedItems(positiveRankedPets);
+    return positiveRankedPets;
+  };
 
+  const handleData = (uploadedData) => {
+    setData(uploadedData);
+    const positiveRankedPets = handleSelected(uploadedData, usePetRank);
     handleGroups(uploadedData, positiveRankedPets, usePetRank);
     if (tabSwitch === 0) setTabSwitch(1); // move upload to expedition when done
   };
