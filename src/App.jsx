@@ -15,6 +15,8 @@ import Weights from "./components/weights/Weights";
 import PetComboList from "./components/comboList/ComboList";
 import { findBestGroups } from "./utils/utils";
 import { useGameSave } from "./utils/GameSaveAtom";
+import GearTab from "./components/gearTab/GearTab";
+import ErrorBoundary from "./ErrorBoundary";
 
 const theme = createTheme({
   palette: {
@@ -72,6 +74,8 @@ function App() {
     switch (tabSwitch) {
       case TAB_COMBO_LIST:
         return <PetComboList data={data} weightMap={weightMap} />;
+      case TAB_GEAR:
+        return <GearTab />;
       case TAB_EXPED:
         return (
           <JSONDisplay
@@ -125,7 +129,7 @@ function App() {
       <RepoLink />
       <Box sx={{ pb: 7, pt: 3, overflow: "auto" }}>
         <Box sx={{ flexGrow: 1 }} className={"main-content"}>
-          {selectComponent()}
+          <ErrorBoundary fallback="error">{selectComponent()}</ErrorBoundary>
         </Box>
         {/*<Box sx={{ height: "64px" }} />*/}{" "}
         {/* Add extra space at the bottom */}
