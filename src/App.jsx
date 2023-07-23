@@ -6,7 +6,7 @@ import RepoLink from "./components/RepoLink";
 import { DefaultWeightMap, petNameArray } from "./utils/itemMapping";
 
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { BottomNavigation, BottomNavigationAction } from "@mui/material";
+import { BottomNavigation, BottomNavigationAction, Paper } from "@mui/material";
 import BadgeIcon from "@mui/icons-material/Badge";
 import InfoIcon from "@mui/icons-material/Info";
 import ScaleIcon from "@mui/icons-material/Scale";
@@ -14,6 +14,7 @@ import { Container, Box } from "@mui/material";
 import Weights from "./components/weights/Weights";
 import PetComboList from "./components/comboList/ComboList";
 import { findBestGroups } from "./utils/utils";
+import { useGameSave } from "./utils/GameSaveAtom";
 
 const theme = createTheme({
   palette: {
@@ -34,13 +35,18 @@ const theme = createTheme({
 
 const defaultPetSelection = petNameArray.map((petData) => petData.petId);
 
+const TAB_UPLOAD = 0;
+const TAB_EXPED = 1;
+const TAB_COMBO_LIST = 3;
+const TAB_GEAR = 4;
+
 function App() {
-  const [data, setData] = useState(null);
+  const [data, setData] = useGameSave();
   const [groups, setGroups] = useState([]);
   const [usePetRank, setUsePetRank] = useState(false);
   const [includeLocked] = useState(false);
   const [selectedItems, setSelectedItems] = useState(defaultPetSelection);
-  const [tabSwitch, setTabSwitch] = useState(0);
+  const [tabSwitch, setTabSwitch] = useState(TAB_UPLOAD);
   const [weightMap, setWeightMap] = useState(DefaultWeightMap);
 
   const handleItemSelected = (items) => {
@@ -64,11 +70,9 @@ function App() {
 
   const selectComponent = () => {
     switch (tabSwitch) {
-      case 4:
-        return <Weights weightMap={weightMap} setWeightsProp={setWeights} />;
-      case 3:
+      case TAB_COMBO_LIST:
         return <PetComboList data={data} weightMap={weightMap} />;
-      case 1:
+      case TAB_EXPED:
         return (
           <JSONDisplay
             weightMap={weightMap}
@@ -80,8 +84,6 @@ function App() {
             setUsePetRank={onUsePetRankChange}
           />
         );
-      case 0:
-        return <FileUpload onData={handleData} />;
       default:
         return <FileUpload onData={handleData} />;
     }
@@ -101,7 +103,9 @@ function App() {
     setData(uploadedData);
     const positiveRankedPets = handleSelected(uploadedData, usePetRank);
     handleGroups(uploadedData, positiveRankedPets, usePetRank);
-    if (tabSwitch === 0) setTabSwitch(1); // move upload to expedition when done
+    if (tabSwitch === TAB_UPLOAD) {
+      setTabSwitch(TAB_EXPED); // move upload to expedition when done
+    }
   };
 
   const handleGroups = (data, selectedItems, usePetRank1) => {
@@ -119,36 +123,59 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <RepoLink />
-      <Container>
+      <Box sx={{ pb: 7, pt: 3, overflow: "auto" }}>
         <Box sx={{ flexGrow: 1 }} className={"main-content"}>
           {selectComponent()}
         </Box>
-        <Box sx={{ height: "64px" }} /> {/* Add extra space at the bottom */}
-        <Box sx={{ width: "100%", position: "fixed", bottom: 0 }}>
-          <BottomNavigation
-            showLabels
-            value={tabSwitch}
-            onChange={(event, newValue) => setTabSwitch(newValue)}
-          >
-            <BottomNavigationAction label="Upload" icon={<InfoIcon />} />
-            {!!data && (
-              <BottomNavigationAction label="Expedition" icon={<InfoIcon />} />
-            )}
-            {!!data && (
+        {/*<Box sx={{ height: "64px" }} />*/}{" "}
+        {/* Add extra space at the bottom */}
+      </Box>
+      <Paper
+        sx={{ position: "fixed", bottom: 0, left: 0, right: 0 }}
+        elevation={3}
+      >
+        <BottomNavigation
+          showLabels
+          value={tabSwitch}
+          onChange={(event, newValue) => {
+            setTabSwitch(newValue);
+          }}
+        >
+          <BottomNavigationAction
+            label="Upload"
+            icon={<InfoIcon />}
+            value={TAB_UPLOAD}
+          />
+          {!!data && (
+            <BottomNavigationAction
+              label="Expedition"
+              icon={<InfoIcon />}
+              value={TAB_EXPED}
+            />
+          )}
+          {/* {!!data && (
               <BottomNavigationAction label="Charges" icon={<BadgeIcon />} />
-            )}
-            {/*{!!data && <BottomNavigationAction label="Exp. Rewards" icon={<BadgeIcon />} />}*/}
-            {!!data && (
-              <BottomNavigationAction
-                label="Pet Combo List"
-                icon={<BadgeIcon />}
-              />
-            )}
-            {/*{!!data && <BottomNavigationAction label="Weighted Pets" icon={<ScaleIcon />} />}*/}
-            {<BottomNavigationAction label="Weights" icon={<ScaleIcon />} />}
-          </BottomNavigation>
-        </Box>
-      </Container>
+            )} */}
+          {/*{!!data && <BottomNavigationAction label="Exp. Rewards" icon={<BadgeIcon />} />}*/}
+          {!!data && (
+            <BottomNavigationAction
+              label="Pet Combo List"
+              icon={<BadgeIcon />}
+              value={TAB_COMBO_LIST}
+            />
+          )}
+          {/*{!!data && <BottomNavigationAction label="Weighted Pets" icon={<ScaleIcon />} />}*/}
+          {/* {<BottomNavigationAction label="Weights" icon={<ScaleIcon />} />} */}
+
+          {!!data && (
+            <BottomNavigationAction
+              label="Current Gear?"
+              icon={<BadgeIcon />}
+              value={TAB_GEAR}
+            />
+          )}
+        </BottomNavigation>
+      </Paper>
     </ThemeProvider>
   );
 }

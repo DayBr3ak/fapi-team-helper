@@ -1,11 +1,12 @@
 import React from "react";
-import Grid2 from "@mui/material/Unstable_Grid2";
+import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { petNamesById } from "../../utils/itemMapping";
+import { useGameSave } from "../../utils/GameSaveAtom";
 
 const comboBonuses = {
   5001: "SPAWNMOREPOTATOES",
@@ -40,26 +41,27 @@ function PetComboDisplay({ petCombos }) {
           petCombos.map((petCombo, i) => {
             const PetIDArray = petCombo.PetID;
             return (
-              <Grid2 container key={i}>
+              <Grid container key={i}>
                 {PetIDArray.map((petId, j) => {
                   return (
-                    <Grid2 xs={3}>
+                    <Grid item xs={3} key={petId}>
                       <img
                         src={petNamesById[petId].img}
                         alt={petNamesById[petId]?.name}
                         key={j}
                       />
-                    </Grid2>
+                    </Grid>
                   );
                 })}
-              </Grid2>
+              </Grid>
             );
           })}
       </AccordionDetails>
     </Accordion>
   );
 }
-export default function PetComboList({ data }) {
+export default function PetComboList() {
+  const [data] = useGameSave();
   const comboList = data.PetsSpecial;
   const comboByBonusId = comboList.reduce((accum, combo, i) => {
     if (i === 0) return accum;
@@ -69,16 +71,16 @@ export default function PetComboList({ data }) {
     return accum;
   }, {});
   return (
-    <Grid2 container spacing={1}>
-      <Grid2 xs={12}>
+    <Grid container spacing={1}>
+      <Grid item xs={12}>
         <Typography variant={"h2"}>Card Combo List</Typography>
-      </Grid2>
-      <Grid2 xs={12}>
+      </Grid>
+      <Grid item xs={12}>
         {comboByBonusId &&
           Object.values(comboByBonusId).map((comboArray, i) => {
             return <PetComboDisplay petCombos={comboArray} key={i} />;
           })}
-      </Grid2>
-    </Grid2>
+      </Grid>
+    </Grid>
   );
 }

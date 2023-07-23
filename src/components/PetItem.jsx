@@ -2,6 +2,8 @@ import React from "react";
 import "./PetItem.css";
 
 import { BonusMap } from "../utils/itemMapping";
+import MouseOverPopover from "./MouseOverPopover";
+import { Box } from "@mui/material";
 
 const filterBonuses = (bonuses, filterFn) => {
   return bonuses.filter(filterFn);
@@ -78,31 +80,39 @@ const PetItem = ({
     </ul>
   );
 
+  const tooltipContent = (
+    <Box sx={{ padding: 1 }}>
+      <h3>
+        {name} (Level: {level}) (Rank: {rank}) ({totalScore})
+      </h3>
+      <span>
+        <h4>Active Bonuses</h4>
+        {section1Bonuses}
+      </span>
+      <span>
+        <h4>Expedition Bonuses:</h4>
+        {section2Bonuses}
+      </span>
+    </Box>
+  );
+
   return (
-    <div
+    <Box
       key={petId}
       onClick={onClick}
-      className={`item-tile ${isSelected ? "" : "unselected"}`}
+      sx={{
+        opacity: isSelected ? 1 : 0.4,
+        width: "75px",
+        height: "75px",
+        alignItems: "center",
+        justifyContent: "center",
+        display: "flex",
+      }}
     >
-      <div className="item-image-container">
-        <div className="tooltip">
-          <span className="tooltip-content">
-            <h3>
-              {name} (Level: {level}) (Rank: {rank}) ({totalScore})
-            </h3>
-            <span>
-              <h4>Active Bonuses</h4>
-              {section1Bonuses}
-            </span>
-            <span>
-              <h4>Expedition Bonuses:</h4>
-              {section2Bonuses}
-            </span>
-          </span>
-        </div>
+      <MouseOverPopover tooltip={tooltipContent}>
         <img src={img} alt={name} className="item-image" />
-      </div>
-    </div>
+      </MouseOverPopover>
+    </Box>
   );
 };
 

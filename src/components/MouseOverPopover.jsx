@@ -1,3 +1,4 @@
+import { Box } from "@mui/material";
 import Popover from "@mui/material/Popover";
 import Typography from "@mui/material/Typography";
 import { useState } from "react";
@@ -14,21 +15,22 @@ export default function MouseOverPopover({ tooltip, children }) {
   };
 
   const open = Boolean(anchorEl);
-
   return (
-    <div>
-      <Typography
+    <>
+      <Box
         aria-owns={open ? "mouse-over-popover" : undefined}
         aria-haspopup="true"
         onMouseEnter={handlePopoverOpen}
         onMouseLeave={handlePopoverClose}
+        sx={{ justifyContent: "center", alignItems: "center" }}
       >
         {children}
-      </Typography>
+      </Box>
       <Popover
-        id="mouse-over-popover"
+        disableScrollLock
         sx={{
           pointerEvents: "none",
+          zIndex: 10000,
         }}
         open={open}
         anchorEl={anchorEl}
@@ -45,6 +47,6 @@ export default function MouseOverPopover({ tooltip, children }) {
       >
         {tooltip}
       </Popover>
-    </div>
+    </>
   );
 }
