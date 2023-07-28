@@ -9,15 +9,21 @@ const filterBonuses = (bonuses, filterFn) => {
   return bonuses.filter(filterFn);
 };
 
-const PetItem = ({
+export default function PetItem({
   petData,
   isSelected,
   onClick,
   data,
   weightMap,
   petScoreFn,
-}) => {
-  if (!!data === false) return <div></div>;
+}) {
+  if (!!data === false) {
+    return null;
+  }
+  if (!petData) {
+    console.error("Missing var petData in PetItem component");
+    return null;
+  }
   const { petId, img, name } = petData;
 
   // Find the pet from the data.PetsCollection
@@ -114,6 +120,4 @@ const PetItem = ({
       </MouseOverPopover>
     </Box>
   );
-};
-
-export default PetItem;
+}

@@ -72,10 +72,10 @@ function App() {
 
   const selectComponent = () => {
     switch (tabSwitch) {
-      case TAB_COMBO_LIST:
-        return <PetComboList data={data} weightMap={weightMap} />;
-      case TAB_GEAR:
-        return <GearTab />;
+      // case TAB_COMBO_LIST:
+      //   return <PetComboList data={data} weightMap={weightMap} />;
+      // case TAB_GEAR:
+      //   return <GearTab />;
       case TAB_EXPED:
         return (
           <JSONDisplay
@@ -161,23 +161,23 @@ function App() {
               <BottomNavigationAction label="Charges" icon={<BadgeIcon />} />
             )} */}
           {/*{!!data && <BottomNavigationAction label="Exp. Rewards" icon={<BadgeIcon />} />}*/}
-          {!!data && (
+          {/* {!!data && (
             <BottomNavigationAction
               label="Pet Combo List"
               icon={<BadgeIcon />}
               value={TAB_COMBO_LIST}
             />
-          )}
+          )} */}
           {/*{!!data && <BottomNavigationAction label="Weighted Pets" icon={<ScaleIcon />} />}*/}
           {/* {<BottomNavigationAction label="Weights" icon={<ScaleIcon />} />} */}
 
-          {!!data && (
+          {/* {!!data && (
             <BottomNavigationAction
               label="Current Gear?"
               icon={<BadgeIcon />}
               value={TAB_GEAR}
             />
-          )}
+          )} */}
         </BottomNavigation>
       </Paper>
     </ThemeProvider>

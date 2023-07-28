@@ -99,6 +99,13 @@ export default function JSONDisplay({
                     (staticPetDatum) => staticPetDatum.petId === ID
                   );
 
+                  if (staticPetData === undefined) {
+                    console.info({ petData, petNameArray });
+                    throw new Error(
+                      `Could not find petId ${ID} in array "petNameArray" did the game update and add pets?`
+                    );
+                  }
+
                   return (
                     <Grid item xs={3} key={idx}>
                       <PetItem
