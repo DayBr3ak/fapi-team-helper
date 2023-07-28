@@ -146,7 +146,7 @@ function App() {
           }}
         >
           <BottomNavigationAction
-            label="Upload"
+            label="Home"
             icon={<InfoIcon />}
             value={TAB_UPLOAD}
           />
