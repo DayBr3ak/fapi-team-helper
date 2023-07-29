@@ -6,9 +6,8 @@ export const PROJECT_PATH = "/fapi-team-helper";
 
 export function calculatePetBaseDamage(pet, usePetRank = false) {
   const rankCount = usePetRank ? pet?.Rank : 0;
-  const result = pet?.BaseDungeonDamage * (1.0 + rankCount * 0.05);
-  const r2 = (pet?.BaseDungeonDamage / 4.0) * (rankCount + 20);
-  return Number(r2);
+  const result = (pet?.BaseDungeonDamage / 4.0) * (rankCount + 20);
+  return result;
 }
 
 export const calculateGroupScore = (group, usePetRank = false) => {
@@ -141,3 +140,15 @@ export const findBestGroups = (petsCollection, usePetRank = false) => {
 
   return bestGroups;
 };
+
+/**
+ *
+ * @param {any} petData  the object from gameSave.PetsCollection
+ * @returns
+ */
+export function indexPetData(petData) {
+  return petData.reduce((accum, item) => {
+    accum[parseInt(item.ID, 10)] = item;
+    return accum;
+  }, {});
+}

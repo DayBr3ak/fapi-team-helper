@@ -9,6 +9,7 @@ export const petNameArray = petsCollection.map(({ id, name }) => {
   return {
     petId: id,
     img: getImageUrl(name),
+    name,
   };
 });
 

@@ -14,7 +14,6 @@ export default function PetItem({
   isSelected,
   onClick,
   data,
-  weightMap,
   petScoreFn,
 }) {
   if (!!data === false) {
@@ -85,7 +84,6 @@ export default function PetItem({
       })}
     </ul>
   );
-
   const tooltipContent = (
     <Box sx={{ padding: 1 }}>
       <h3>
@@ -113,6 +111,12 @@ export default function PetItem({
         alignItems: "center",
         justifyContent: "center",
         display: "flex",
+        borderStyle: "solid",
+        borderWidth: "1px",
+        borderColor: "rgba(0,0,0,0)",
+        "&:hover": {
+          borderColor: "blue",
+        },
       }}
     >
       <MouseOverPopover tooltip={tooltipContent}>

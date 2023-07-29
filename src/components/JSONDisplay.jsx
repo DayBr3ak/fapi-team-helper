@@ -13,6 +13,9 @@ import {
   calculateGroupScore,
   calculatePetBaseDamage,
 } from "../utils/utils";
+import { Backdrop, CircularProgress } from "@mui/material";
+import { useSelector } from "react-redux";
+import { selectGameSaveData, selectLoadingState } from "../utils/uiSlice";
 
 function ScoreSection({ data, group, totalScore, usePetRank }) {
   const { baseGroupScore, dmgCount, timeCount, synergyBonus } =
@@ -31,15 +34,10 @@ function ScoreSection({ data, group, totalScore, usePetRank }) {
   );
 }
 
-export default function JSONDisplay({
-  data,
-  groups,
-  selectedItems,
-  handleItemSelected,
-  weightMap,
-  usePetRank,
-  setUsePetRank,
-}) {
+export default function JSONDisplay({ groups, usePetRank, setUsePetRank }) {
+  const data = useSelector(selectGameSaveData);
+  const loading = useSelector(selectLoadingState);
+
   if (!!data === false || !!data.PetsCollection === false) {
     return <div>Loading...</div>; // You can replace this with null or another element if you prefer
   }
@@ -53,8 +51,12 @@ export default function JSONDisplay({
             id="usePetRank"
             onChange={setUsePetRank}
             checked={usePetRank}
+            disabled={loading}
           />
           <label htmlFor={"usePetRank"}>Use rank into damage calculation</label>
+          <Backdrop open={loading} sx={{ color: "#fff" }}>
+            <CircularProgress color="secondary" />
+          </Backdrop>
         </div>
         {groups.reduce((accum, group, index) => {
           const score = calculateGroupScore(group, usePetRank).groupScore;
@@ -84,11 +86,9 @@ export default function JSONDisplay({
             </div>
           );
           accum.push(
-            <div className="grid-row" key={(1 + index) * 9001}>
-              <MouseOverPopover tooltip={groupTooltip}>
-                Group {index + 1} Damage: {displayedDamage}
-              </MouseOverPopover>
-            </div>
+            <MouseOverPopover tooltip={groupTooltip} key={(1 + index) * 9001}>
+              Group {index + 1} Damage: {displayedDamage}
+            </MouseOverPopover>
           );
           accum.push(
             <Grid container spacing={1} key={index}>
@@ -114,7 +114,6 @@ export default function JSONDisplay({
                         data={data}
                         isSelected={true}
                         onClick={() => {}}
-                        weightMap={weightMap}
                       />
                     </Grid>
                   );
@@ -128,12 +127,7 @@ export default function JSONDisplay({
         <Typography variant={"h5"}>
           Highlighted: &gt;0 rank pets (clickable)
         </Typography>
-        <ItemSelection
-          weightMap={weightMap}
-          data={data}
-          selectedItems={selectedItems}
-          onItemSelected={handleItemSelected}
-        />
+        <ItemSelection />
       </div>
     </div>
   );
