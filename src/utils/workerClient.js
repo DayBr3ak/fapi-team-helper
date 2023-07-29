@@ -1,9 +1,21 @@
 import Worker from "./worker?worker";
 
+const $mem = {};
+
+function makeUniqStr(idToInclude, usePetRank) {
+  const a = idToInclude.slice();
+  a.sort();
+  return a.join(";") + ";;" + usePetRank.toString();
+}
+
 let worker;
 const pendings = {};
 let rid = 0;
-export async function findBestGroupsAsync(petsCollection, usePetRank) {
+export async function findBestGroupsAsync(
+  petsCollection,
+  idToInclude,
+  usePetRank
+) {
   if (!worker) {
     // init worker if first call
     worker = Worker();
@@ -14,10 +26,19 @@ export async function findBestGroupsAsync(petsCollection, usePetRank) {
     };
   }
 
+  const uniqStr = makeUniqStr(idToInclude, usePetRank);
+  if ($mem[uniqStr]) {
+    return $mem[uniqStr];
+  }
+
   const promise = new Promise((r) => {
     pendings[rid] = r;
   });
-  worker.postMessage({ rid, payload: { petsCollection, usePetRank } });
+  worker.postMessage({
+    rid,
+    payload: { petsCollection, idToInclude, usePetRank },
+  });
   rid += 1;
+  $mem[uniqStr] = promise;
   return promise;
 }

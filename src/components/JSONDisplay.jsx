@@ -18,13 +18,23 @@ import { useSelector } from "react-redux";
 import { selectGameSaveData, selectLoadingState } from "../utils/uiSlice";
 
 function ScoreSection({ data, group, totalScore, usePetRank }) {
-  const { baseGroupScore, dmgCount, timeCount, synergyBonus } =
-    calculateGroupScore(group, usePetRank);
+  const {
+    baseGroupScore,
+    dmgCount,
+    timeCount,
+    synergyBonus,
+    baseGroupScoreNoRank,
+  } = calculateGroupScore(group);
   return (
     <React.Fragment>
       <ul>
         <li>{Number(totalScore).toExponential(2)}&nbsp;~=&nbsp; 5 *</li>
-        <li>Group Base: {Number(baseGroupScore).toExponential(2)}</li>
+        <li>
+          Group Base:{" "}
+          {Number(
+            usePetRank ? baseGroupScore : baseGroupScoreNoRank
+          ).toExponential(2)}
+        </li>
         <li>Dmg Bonus: {Number(1 + dmgCount * EXP_DMG_MOD).toFixed(2)}x</li>
         <li>Time Bonus: {Number(1 + timeCount * EXP_TIME_MOD).toFixed(2)}x</li>
         <li>Synergy: {Number(synergyBonus).toFixed(2)}x</li>
@@ -59,7 +69,8 @@ export default function JSONDisplay({ groups, usePetRank, setUsePetRank }) {
           </Backdrop>
         </div>
         {groups.reduce((accum, group, index) => {
-          const score = calculateGroupScore(group, usePetRank).groupScore;
+          const gs = calculateGroupScore(group);
+          const score = usePetRank ? gs.groupScore : gs.groupScoreNoRank;
           const displayedDamage = group
             .map(
               (pet) =>

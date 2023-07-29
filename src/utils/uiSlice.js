@@ -4,7 +4,7 @@ import {
   createSlice,
 } from "@reduxjs/toolkit";
 import { petNameArray } from "./itemMapping";
-import { indexPetData } from "./utils";
+import { findBestGroups, indexPetData } from "./utils";
 import { findBestGroupsAsync } from "./workerClient";
 const defaultPetSelection = petNameArray.map((petData) => petData.petId);
 const initialState = {
@@ -29,7 +29,9 @@ export const findBestGroupAction = createAsyncThunk(
     const s = selectSelectedPets(state);
     const localPets = s.map((petId) => selectedItemsById[petId]);
 
-    const response = await findBestGroupsAsync(localPets, state.ui.usePetRank);
+    const response = await findBestGroupsAsync(petData, s, state.ui.usePetRank);
+    // const response = await findBestGroups(petData, s, state.ui.usePetRank);
+    console.info(response);
     return response;
   }
 );
