@@ -98,18 +98,7 @@ export const selectSelectedPets = createSelector(
       const has1 = selectedPets.includes(x);
       const has2 = selectedPetsForce.includes(x);
 
-      if (has1 && has2) {
-        return false;
-      }
-      if (has1 && !has2) {
-        return true;
-      }
-      if (!has1 && has2) {
-        return true;
-      }
-      if (!has1 && !has2) {
-        return false;
-      }
+      return has1 ^ has2;
     });
   }
 );
