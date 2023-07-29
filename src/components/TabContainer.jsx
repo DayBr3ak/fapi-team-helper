@@ -50,7 +50,7 @@ export default function TabContainer() {
 
   const onUsePetRankChange = (e) => {
     const checked = e.target.checked;
-    dispatch(uiSlice.actions.setUsePetRank(checked));
+    dispatch(uiSlice.actions.setUsePetRank(!checked));
     dispatch(findBestGroupAction());
   };
 

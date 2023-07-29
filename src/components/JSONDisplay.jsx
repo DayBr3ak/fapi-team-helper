@@ -50,10 +50,10 @@ export default function JSONDisplay({ groups, usePetRank, setUsePetRank }) {
             type="checkbox"
             id="usePetRank"
             onChange={setUsePetRank}
-            checked={usePetRank}
+            checked={!usePetRank}
             disabled={loading}
           />
-          <label htmlFor={"usePetRank"}>Use rank into damage calculation</label>
+          <label htmlFor={"usePetRank"}>Ignore Pet Rank</label>
           <Backdrop open={loading} sx={{ color: "#fff" }}>
             <CircularProgress color="secondary" />
           </Backdrop>
