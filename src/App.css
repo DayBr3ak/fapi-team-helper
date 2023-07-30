@@ -44,3 +44,14 @@ body {
 .read-the-docs {
   color: #888;
 }
+
+.grid-container {
+  display: grid;
+  grid-template-columns: 8fr 4fr;
+  grid-column-gap: 16px;
+}
+
+.grid-left {
+  display: grid;
+  grid-row-gap: 16px;
+}

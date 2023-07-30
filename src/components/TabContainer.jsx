@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   BottomNavigation,
   BottomNavigationAction,
@@ -8,10 +8,8 @@ import {
 import RepoLink from "./RepoLink";
 import ErrorBoundary from "../ErrorBoundary";
 
-import BadgeIcon from "@mui/icons-material/Badge";
 import InfoIcon from "@mui/icons-material/Info";
-import ScaleIcon from "@mui/icons-material/Scale";
-import JSONDisplay from "./JSONDisplay";
+import ExpeditionGroupTab from "./ExpeditionGroupTab";
 import FileUpload from "./FileUpload";
 import { useDispatch, useSelector } from "react-redux";
 import uiSlice, {
@@ -62,7 +60,7 @@ export default function TabContainer() {
       //   return <GearTab />;
       case TAB_EXPED:
         return (
-          <JSONDisplay
+          <ExpeditionGroupTab
             groups={groups}
             usePetRank={usePetRank}
             setUsePetRank={onUsePetRankChange}

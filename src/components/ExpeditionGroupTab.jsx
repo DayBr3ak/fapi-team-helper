@@ -1,7 +1,6 @@
 import React, { useMemo } from "react";
 import Grid from "@mui/material/Grid";
 
-import "./JSONDisplay.css"; // Add this line to import the CSS file
 import { petNameArray } from "../utils/itemMapping";
 import PetItem from "./PetItem";
 import ItemSelection from "./ItemSelection";
@@ -139,7 +138,11 @@ function GroupSection({ group, index }) {
   );
 }
 
-export default function JSONDisplay({ groups, usePetRank, setUsePetRank }) {
+export default function ExpeditionGroupTab({
+  groups,
+  usePetRank,
+  setUsePetRank,
+}) {
   const data = useSelector(selectGameSaveData);
   const loading = useSelector(selectLoadingState);
 
