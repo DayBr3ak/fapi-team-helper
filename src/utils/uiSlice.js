@@ -97,12 +97,13 @@ export const selectSelectedPets = createSelector(
     const set = new Set(selectedPets.concat(selectedPetsForce));
     const s = [...set];
 
-    return s.filter((x) => {
+    const result = s.filter((x) => {
       const has1 = selectedPets.includes(x);
       const has2 = selectedPetsForce.includes(x);
-
       return has1 ^ has2;
     });
+    result.sort(); // just sorting integers
+    return result;
   }
 );
 export const selectUsePetRank = (state) => state.ui.usePetRank;

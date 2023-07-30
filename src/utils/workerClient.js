@@ -3,9 +3,7 @@ import Worker from "./worker?worker";
 const $mem = {};
 
 function makeUniqStr(idToInclude, usePetRank) {
-  const a = idToInclude.slice();
-  a.sort();
-  return a.join(";") + ";;" + usePetRank.toString();
+  return idToInclude.join(";") + ";;" + usePetRank.toString();
 }
 
 let worker;

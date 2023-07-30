@@ -168,6 +168,7 @@ function makeUniqStr(petsCollection) {
   return a.join(";");
 }
 
+// sort by type (ground then air) and then by ID (asc)
 function sortGroup(group) {
   group.sort((a, b) => {
     if (a.Type === b.Type) {
@@ -183,9 +184,8 @@ export const findBestGroups = (
   idToInclude,
   usePetRank = false
 ) => {
-  const xxx = idToInclude.slice();
-  xxx.sort();
-  const uniqStr = xxx.join(";") + ";;" + (usePetRank ? "true" : "false");
+  const uniqStr =
+    idToInclude.join(";") + ";;" + (usePetRank ? "true" : "false");
 
   if ($memBG[uniqStr]) {
     return $memBG[uniqStr];
