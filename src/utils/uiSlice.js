@@ -25,12 +25,13 @@ export const findBestGroupAction = createAsyncThunk(
     const currentSelected = selectSelectedPets(state);
 
     // pre calculate the rank / no rank version. It's cached anyway, and might as well use the worker as much as possible
-    const [rankTrue, rankFalse] = await Promise.all([
-      findBestGroupsAsync(petData, currentSelected, true),
-      findBestGroupsAsync(petData, currentSelected, false),
-    ]);
+    const rankFalse = findBestGroupsAsync(petData, currentSelected, false);
+    const rankTrue = findBestGroupsAsync(petData, currentSelected, true);
 
-    return state.ui.usePetRank ? rankTrue : rankFalse;
+    if (state.ui.usePetRank) {
+      return rankTrue;
+    }
+    return rankFalse;
   }
 );
 

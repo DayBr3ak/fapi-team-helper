@@ -13,9 +13,7 @@ export function calculatePetBaseDamage(pet, usePetRank = false) {
 }
 
 function makeUniqStrGroup(group) {
-  const a = group.map((x) => x.ID);
-  a.sort();
-  return a.join(";");
+  return group.map((x) => x.ID).join(";");
 }
 
 const gmem = {};
@@ -136,38 +134,59 @@ function findCombinations(array, length = 4) {
   return combinations;
 }
 
-const $findCombinationsMemo = {};
+let $findCombinationsMemo = null;
 function findCombinationsMemo(array) {
-  const uniqStr = makeUniqStr(array);
-  if ($findCombinationsMemo[uniqStr]) {
-    return $findCombinationsMemo[uniqStr];
+  if ($findCombinationsMemo) {
+    return $findCombinationsMemo;
   }
 
   const r1 = findCombinations(array);
   // just forget about  any groups that hasn't max synergy
-  const r2 = r1.filter((group) => {
-    let ground = 0;
-    let air = 0;
+  const r2 = r1
+    .filter((group) => {
+      let ground = 0;
+      let air = 0;
 
-    for (const el of group) {
-      if (el.Type === 1) {
-        ground += 1;
+      for (const el of group) {
+        if (el.Type === 1) {
+          ground += 1;
+        }
+        if (el.Type === 2) {
+          air += 1;
+        }
       }
-      if (el.Type === 2) {
-        air += 1;
-      }
-    }
-    return ground === 2 && air === 2;
-  });
+      return ground === 2 && air === 2;
+    })
+    .map((group) => {
+      sortGroup(group);
+      return group;
+    });
 
-  $findCombinationsMemo[uniqStr] = r2;
-  return r2;
+  $findCombinationsMemo = r2;
+  return $findCombinationsMemo;
 }
 
-function makeUniqStr(petsCollection) {
-  const a = petsCollection.map((p) => p.ID);
-  a.sort();
-  return a.join(";");
+const $findCombinationsMemoSorted = {
+  true: null,
+  false: null,
+};
+function findCombinationsMemoSorted(array, usePetRank = false) {
+  if ($findCombinationsMemoSorted[usePetRank.toString()]) {
+    return $findCombinationsMemoSorted[usePetRank.toString()];
+  }
+
+  const combs = findCombinationsMemo(array);
+  combs.sort((groupA, groupB) => {
+    const scoreA = calculateGroupScore(groupA);
+    const scoreB = calculateGroupScore(groupB);
+
+    const iA = usePetRank ? scoreA.groupScore : scoreA.groupScoreNoRank;
+    const iB = usePetRank ? scoreB.groupScore : scoreB.groupScoreNoRank;
+    return iB - iA;
+  });
+
+  $findCombinationsMemoSorted[usePetRank.toString()] = combs;
+  return combs;
 }
 
 // sort by type (ground then air) and then by ID (asc)
@@ -194,7 +213,7 @@ export const findBestGroups = (
   }
 
   const bestGroups = [];
-  const combinations = findCombinationsMemo(petsCollection);
+  const combinations = findCombinationsMemoSorted(petsCollection, usePetRank);
   const idToExcludes = [];
 
   for (let g = 0; g < MAX_EXPED_TEAMS; g++) {
@@ -203,7 +222,6 @@ export const findBestGroups = (
     }
 
     let best = null;
-    let bestScore = 0;
     for (const group of combinations) {
       if (group.some((x) => idToExcludes.includes(x.ID))) {
         continue;
@@ -212,20 +230,14 @@ export const findBestGroups = (
         continue;
       }
 
-      const gs = calculateGroupScore(group);
-      const score = usePetRank ? gs?.groupScore : gs?.groupScoreNoRank;
-
-      if (score > bestScore) {
-        best = group;
-        bestScore = score;
-      }
+      best = group;
+      break;
     }
 
     // console.info("comb", g, combinations);
     // console.info("best", { best, bestScore });
 
     if (best) {
-      sortGroup(best);
       bestGroups.push(best);
       const bestGroupIds = best.map((x) => x.ID);
       idToExcludes.push(...bestGroupIds);
