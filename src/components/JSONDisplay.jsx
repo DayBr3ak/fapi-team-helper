@@ -13,7 +13,7 @@ import {
   calculateGroupScore,
   calculatePetBaseDamage,
 } from "../utils/utils";
-import { Backdrop, CircularProgress } from "@mui/material";
+import { Backdrop, Box, CircularProgress } from "@mui/material";
 import { useSelector } from "react-redux";
 import { selectGameSaveData, selectLoadingState } from "../utils/uiSlice";
 
@@ -26,21 +26,31 @@ function ScoreSection({ data, group, totalScore, usePetRank }) {
     baseGroupScoreNoRank,
   } = calculateGroupScore(group);
   return (
-    <React.Fragment>
+    <>
       <ul>
-        <li>{Number(totalScore).toExponential(2)}&nbsp;~=&nbsp; 5 *</li>
+        {/* <li>{Number(totalScore).toExponential(2)}&nbsp;~=&nbsp; 5 *</li> */}
         <li>
-          Group Base:{" "}
-          {Number(
-            usePetRank ? baseGroupScore : baseGroupScoreNoRank
-          ).toExponential(2)}
+          Gr BaseDmg:{" "}
+          <b>
+            {Number(
+              usePetRank ? baseGroupScore : baseGroupScoreNoRank
+            ).toExponential(2)}
+          </b>
         </li>
-        <li>Dmg Bonus: {Number(1 + dmgCount * EXP_DMG_MOD).toFixed(2)}x</li>
-        <li>Time Bonus: {Number(1 + timeCount * EXP_TIME_MOD).toFixed(2)}x</li>
-        <li>Synergy: {Number(synergyBonus).toFixed(2)}x</li>
-        <li>PetDmgMod: {Number(data?.PetDamageBonuses).toExponential(2)}</li>
+        <li>
+          Dmg Bonus: <b>{Number(1 + dmgCount * EXP_DMG_MOD).toFixed(2)}x</b>
+        </li>
+        <li>
+          Time Bonus: <b>{Number(1 + timeCount * EXP_TIME_MOD).toFixed(2)}x</b>
+        </li>
+        <li>
+          Synergy: <b>{Number(synergyBonus).toFixed(2)}x</b>
+        </li>
+        <li>
+          PetDmgMod: <b>{Number(data?.PetDamageBonuses).toExponential(2)}</b>
+        </li>
       </ul>
-    </React.Fragment>
+    </>
   );
 }
 
@@ -84,17 +94,15 @@ export default function JSONDisplay({ groups, usePetRank, setUsePetRank }) {
             Number(data?.PetDamageBonuses) * score * 5
           ).toExponential(2);
           const groupTooltip = (
-            <div className="groups-tooltip">
-              <span className="groups-tooltip-content">
-                <h3>Group Score ({totalScore})</h3>
-                <ScoreSection
-                  data={data}
-                  group={group}
-                  totalScore={totalScore}
-                  usePetRank={usePetRank}
-                />
-              </span>
-            </div>
+            <Box sx={{ padding: 1 }}>
+              <h3>Group Score ({totalScore})</h3>
+              <ScoreSection
+                data={data}
+                group={group}
+                totalScore={totalScore}
+                usePetRank={usePetRank}
+              />
+            </Box>
           );
           accum.push(
             <MouseOverPopover tooltip={groupTooltip} key={(1 + index) * 9001}>

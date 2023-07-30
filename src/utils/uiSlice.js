@@ -4,7 +4,7 @@ import {
   createSlice,
 } from "@reduxjs/toolkit";
 import { petNameArray } from "./itemMapping";
-import { findBestGroups, indexPetData } from "./utils";
+import { findBestGroups } from "./utils";
 import { findBestGroupsAsync } from "./workerClient";
 const defaultPetSelection = petNameArray.map((petData) => petData.petId);
 const initialState = {
@@ -23,16 +23,16 @@ export const findBestGroupAction = createAsyncThunk(
   "ui/findBestGroup",
   async (_, thunkAPI) => {
     const state = thunkAPI.getState();
-
     const petData = state.ui.gameStateData.PetsCollection;
-    const selectedItemsById = indexPetData(petData);
-    const s = selectSelectedPets(state);
-    const localPets = s.map((petId) => selectedItemsById[petId]);
+    const currentSelected = selectSelectedPets(state);
 
-    const response = await findBestGroupsAsync(petData, s, state.ui.usePetRank);
-    // const response = await findBestGroups(petData, s, state.ui.usePetRank);
-    console.info(response);
-    return response;
+    // pre calculate the rank / no rank version. It's cached anyway, and might as well use the worker as much as possible
+    const [rankTrue, rankFalse] = await Promise.all([
+      findBestGroupsAsync(petData, currentSelected, true),
+      findBestGroupsAsync(petData, currentSelected, false),
+    ]);
+
+    return state.ui.usePetRank ? rankTrue : rankFalse;
   }
 );
 
@@ -61,7 +61,7 @@ export const uiSlice = createSlice({
     setSelected(state, { payload }) {
       state.selectedPets = payload;
     },
-    setUsePetRank(state, { payload }, abc) {
+    setUsePetRank(state, { payload }) {
       state.usePetRank = payload;
     },
     setCurrentTab(state, { payload }) {
@@ -73,6 +73,7 @@ export const uiSlice = createSlice({
       state.loadingState = true;
     });
     builder.addCase(findBestGroupAction.rejected, (state, action) => {
+      console.error(action);
       state.loadingState = false;
     });
     builder.addCase(findBestGroupAction.fulfilled, (state, { payload }) => {

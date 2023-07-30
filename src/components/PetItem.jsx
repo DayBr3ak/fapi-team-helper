@@ -4,6 +4,8 @@ import "./PetItem.css";
 import { BonusMap } from "../utils/itemMapping";
 import MouseOverPopover from "./MouseOverPopover";
 import { Box } from "@mui/material";
+import { useSelector } from "react-redux";
+import { selectUsePetRank } from "../utils/uiSlice";
 
 const filterBonuses = (bonuses, filterFn) => {
   return bonuses.filter(filterFn);
@@ -16,6 +18,7 @@ export default function PetItem({
   data,
   petScoreFn,
 }) {
+  const usePetRank = useSelector(selectUsePetRank);
   if (!!data === false) {
     return null;
   }
@@ -30,44 +33,33 @@ export default function PetItem({
 
   if (!pet) return null; // In case the pet is not found in the collection
 
-  const rank = pet.Rank;
+  const rank = usePetRank ? pet.Rank : 0;
   const level = pet.Level;
   const totalScore = Number(
     Number(data?.PetDamageBonuses) *
       pet.BaseDungeonDamage *
       (1.0 + rank * 0.05) *
       5
-  ).toExponential(2);
+  ).toPrecision(4);
 
-  // const weightedBonuses = filterBonuses(pet.BonusList, (bonus) => {
-  //     return bonus.ID < 1000;
-  // }).reduce((accum, activePetBonus) => {
-  //     const {ID, } = activePetBonus;
-  //     const result = weightMap[ID]?.weight;
-  //     if (result) accum += result;
-  //     return accum;
-  // }, 0);
+  // const section1Bonuses = (
+  //   <ul>
+  //     {filterBonuses(pet.BonusList, (bonus) => {
+  //       return bonus.ID < 1000;
+  //     }).map((activePetBonus, i) => {
+  //       const bonusBase = Number(1.0 + activePetBonus.Gain);
+  //       const bonusPower = Number(pet.Level);
+  //       const result =
+  //         (Math.pow(bonusBase, bonusPower) - 1) * (1 + 0.02 * Number(pet.Rank));
 
-  const weightedActiveScore = petScoreFn ? petScoreFn(pet) : 0;
-
-  const section1Bonuses = (
-    <ul>
-      {filterBonuses(pet.BonusList, (bonus) => {
-        return bonus.ID < 1000;
-      }).map((activePetBonus, i) => {
-        const bonusBase = Number(1.0 + activePetBonus.Gain);
-        const bonusPower = Number(pet.Level);
-        const result =
-          (Math.pow(bonusBase, bonusPower) - 1) * (1 + 0.02 * Number(pet.Rank));
-
-        return (
-          <li key={i}>
-            {BonusMap[activePetBonus.ID]?.label}: {result.toExponential(2)}
-          </li>
-        );
-      })}
-    </ul>
-  );
+  //       return (
+  //         <li key={i}>
+  //           {BonusMap[activePetBonus.ID]?.label}: {result.toExponential(2)}
+  //         </li>
+  //       );
+  //     })}
+  //   </ul>
+  // );
 
   const section2Bonuses = (
     <ul>
@@ -76,9 +68,9 @@ export default function PetItem({
         (bonus) => bonus.ID >= 1000 && bonus.ID < 5000
       ).map((activePetBonus, i) => {
         return (
-          <li key={i}>
+          <li key={activePetBonus.ID}>
             {BonusMap[activePetBonus.ID]?.label}:{" "}
-            {Number(activePetBonus.Power).toExponential(2)}
+            <b>{Number(activePetBonus.Power).toPrecision(2)}</b>
           </li>
         );
       })}
@@ -89,10 +81,10 @@ export default function PetItem({
       <h3>
         {name} (Level: {level}) (Rank: {rank}) ({totalScore})
       </h3>
-      <span>
+      {/* <span>
         <h4>Active Bonuses</h4>
         {section1Bonuses}
-      </span>
+      </span> */}
       <span>
         <h4>Expedition Bonuses:</h4>
         {section2Bonuses}
