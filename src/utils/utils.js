@@ -2,6 +2,8 @@ export const EXP_DMG_MOD = 0.1;
 export const EXP_TIME_MOD = 0.05;
 export const SYNERGY_MOD_STEP = 0.25;
 
+const MAX_EXPED_TEAMS = 7;
+
 export const PROJECT_PATH = "/fapi-team-helper";
 
 export function calculatePetBaseDamage(pet, usePetRank = false) {
@@ -191,12 +193,11 @@ export const findBestGroups = (
     return $memBG[uniqStr];
   }
 
-  const numGroups = 6; // Number of groups to find
   const bestGroups = [];
   const combinations = findCombinationsMemo(petsCollection);
   const idToExcludes = [];
 
-  for (let g = 0; g < numGroups; g++) {
+  for (let g = 0; g < MAX_EXPED_TEAMS; g++) {
     if (combinations.length < 1) {
       break;
     }
