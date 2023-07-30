@@ -7,10 +7,6 @@ import { Box } from "@mui/material";
 import { useSelector } from "react-redux";
 import { selectUsePetRank } from "../utils/uiSlice";
 
-const filterBonuses = (bonuses, filterFn) => {
-  return bonuses.filter(filterFn);
-};
-
 export default function PetItem({
   petData,
   isSelected,
@@ -44,36 +40,36 @@ export default function PetItem({
 
   // const section1Bonuses = (
   //   <ul>
-  //     {filterBonuses(pet.BonusList, (bonus) => {
-  //       return bonus.ID < 1000;
-  //     }).map((activePetBonus, i) => {
-  //       const bonusBase = Number(1.0 + activePetBonus.Gain);
-  //       const bonusPower = Number(pet.Level);
-  //       const result =
-  //         (Math.pow(bonusBase, bonusPower) - 1) * (1 + 0.02 * Number(pet.Rank));
+  //     {pet.BonusList.filter((bonus) => bonus.ID < 1000).map(
+  //       (activePetBonus, i) => {
+  //         const bonusBase = Number(1.0 + activePetBonus.Gain);
+  //         const bonusPower = Number(pet.Level);
+  //         const result =
+  //           (Math.pow(bonusBase, bonusPower) - 1) *
+  //           (1 + 0.02 * Number(pet.Rank));
 
-  //       return (
-  //         <li key={i}>
-  //           {BonusMap[activePetBonus.ID]?.label}: {result.toExponential(2)}
-  //         </li>
-  //       );
-  //     })}
+  //         return (
+  //           <li key={i}>
+  //             {BonusMap[activePetBonus.ID]?.label}: {result.toExponential(2)}
+  //           </li>
+  //         );
+  //       }
+  //     )}
   //   </ul>
   // );
 
   const section2Bonuses = (
     <ul>
-      {filterBonuses(
-        pet.BonusList,
-        (bonus) => bonus.ID >= 1000 && bonus.ID < 5000
-      ).map((activePetBonus, i) => {
-        return (
-          <li key={activePetBonus.ID}>
-            {BonusMap[activePetBonus.ID]?.label}:{" "}
-            <b>{Number(activePetBonus.Power).toPrecision(2)}</b>
-          </li>
-        );
-      })}
+      {pet.BonusList.filter((bonus) => bonus.ID >= 1000 && bonus.ID < 5000).map(
+        (activePetBonus) => {
+          return (
+            <li key={activePetBonus.ID}>
+              {BonusMap[activePetBonus.ID]?.label}:{" "}
+              <b>{Number(activePetBonus.Power).toPrecision(2)}</b>
+            </li>
+          );
+        }
+      )}
     </ul>
   );
   const tooltipContent = (
