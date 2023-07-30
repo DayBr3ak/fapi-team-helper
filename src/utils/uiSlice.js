@@ -3,14 +3,12 @@ import {
   createSelector,
   createSlice,
 } from "@reduxjs/toolkit";
-import { petNameArray } from "./itemMapping";
 import { findBestGroups } from "./utils";
 import { findBestGroupsAsync } from "./workerClient";
-const defaultPetSelection = petNameArray.map((petData) => petData.petId);
 const initialState = {
   gameStateData: null,
   loadingState: false,
-  selectedPets: defaultPetSelection,
+  selectedPets: [],
   selectedPetsForce: [],
 
   usePetRank: false,

@@ -2,7 +2,7 @@ export const EXP_DMG_MOD = 0.1;
 export const EXP_TIME_MOD = 0.05;
 export const SYNERGY_MOD_STEP = 0.25;
 
-const MAX_EXPED_TEAMS = 7;
+export const MAX_EXPED_TEAMS = 7;
 
 export const PROJECT_PATH = "/fapi-team-helper";
 
@@ -202,7 +202,7 @@ export const findBestGroups = (
       break;
     }
 
-    let best = combinations[0];
+    let best = null;
     let bestScore = 0;
     for (const group of combinations) {
       if (group.some((x) => idToExcludes.includes(x.ID))) {
@@ -212,9 +212,8 @@ export const findBestGroups = (
         continue;
       }
 
-      const score = usePetRank
-        ? calculateGroupScore(group)?.groupScore
-        : calculateGroupScore(group)?.groupScoreNoRank;
+      const gs = calculateGroupScore(group);
+      const score = usePetRank ? gs?.groupScore : gs?.groupScoreNoRank;
 
       if (score > bestScore) {
         best = group;
@@ -223,6 +222,7 @@ export const findBestGroups = (
     }
 
     // console.info("comb", g, combinations);
+    // console.info("best", { best, bestScore });
 
     if (best) {
       sortGroup(best);

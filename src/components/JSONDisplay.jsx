@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import Grid from "@mui/material/Grid";
 
 import "./JSONDisplay.css"; // Add this line to import the CSS file
@@ -10,6 +10,7 @@ import Typography from "@mui/material/Typography";
 import {
   EXP_DMG_MOD,
   EXP_TIME_MOD,
+  MAX_EXPED_TEAMS,
   calculateGroupScore,
   calculatePetBaseDamage,
 } from "../utils/utils";
@@ -54,13 +55,106 @@ function ScoreSection({ data, group, totalScore, usePetRank }) {
   );
 }
 
+function EmptyGroupSection({ index }) {
+  return (
+    <Box>
+      Group {index + 1} Damage: NA
+      <Grid container spacing={1}>
+        <Grid item xs={3}>
+          x
+        </Grid>
+        <Grid item xs={3}>
+          x
+        </Grid>
+        <Grid item xs={3}>
+          x
+        </Grid>
+        <Grid item xs={3}>
+          x
+        </Grid>
+      </Grid>
+    </Box>
+  );
+}
+
+function GroupSection({ group, index }) {
+  const data = useSelector(selectGameSaveData);
+  const gs = calculateGroupScore(group);
+  const score = usePetRank ? gs.groupScore : gs.groupScoreNoRank;
+  const displayedDamage = group
+    .map(
+      (pet) =>
+        calculatePetBaseDamage(pet, usePetRank) * 5 * data?.PetDamageBonuses
+    )
+    .reduce((accum, dmg) => (accum += dmg), Number(0))
+    .toExponential(2);
+
+  const totalScore = Number(
+    Number(data?.PetDamageBonuses) * score * 5
+  ).toExponential(2);
+  const groupTooltip = (
+    <Box sx={{ padding: 1 }}>
+      <h3>Group Score ({totalScore})</h3>
+      <ScoreSection
+        data={data}
+        group={group}
+        totalScore={totalScore}
+        usePetRank={usePetRank}
+      />
+    </Box>
+  );
+
+  return (
+    <>
+      <MouseOverPopover tooltip={groupTooltip}>
+        Group {index + 1} Damage: {displayedDamage}
+      </MouseOverPopover>
+      <Grid container spacing={1}>
+        {group.map((petData) => {
+          const { ID } = petData;
+          const staticPetData = petNameArray.find(
+            (staticPetDatum) => staticPetDatum.petId === ID
+          );
+
+          if (staticPetData === undefined) {
+            console.info({ petData, petNameArray });
+            throw new Error(
+              `Could not find petId ${ID} in array "petNameArray" did the game update and add pets?`
+            );
+          }
+
+          return (
+            <Grid item xs={3} key={ID}>
+              <PetItem
+                petData={staticPetData}
+                data={data}
+                isSelected={true}
+                onClick={() => {}}
+              />
+            </Grid>
+          );
+        })}
+      </Grid>
+    </>
+  );
+}
+
 export default function JSONDisplay({ groups, usePetRank, setUsePetRank }) {
   const data = useSelector(selectGameSaveData);
   const loading = useSelector(selectLoadingState);
 
+  const paddedGroups = useMemo(() => {
+    const n = groups.slice();
+    while (n.length < MAX_EXPED_TEAMS) {
+      n.push(null);
+    }
+    return n;
+  }, [groups]);
+
   if (!!data === false || !!data.PetsCollection === false) {
     return <div>Loading...</div>; // You can replace this with null or another element if you prefer
   }
+
   return (
     <div className="grid-container">
       <div className="grid-left">
@@ -78,69 +172,12 @@ export default function JSONDisplay({ groups, usePetRank, setUsePetRank }) {
             <CircularProgress color="secondary" />
           </Backdrop>
         </div>
-        {groups.reduce((accum, group, index) => {
-          const gs = calculateGroupScore(group);
-          const score = usePetRank ? gs.groupScore : gs.groupScoreNoRank;
-          const displayedDamage = group
-            .map(
-              (pet) =>
-                calculatePetBaseDamage(pet, usePetRank) *
-                5 *
-                data?.PetDamageBonuses
-            )
-            .reduce((accum, dmg) => (accum += dmg), Number(0))
-            .toExponential(2);
-          const totalScore = Number(
-            Number(data?.PetDamageBonuses) * score * 5
-          ).toExponential(2);
-          const groupTooltip = (
-            <Box sx={{ padding: 1 }}>
-              <h3>Group Score ({totalScore})</h3>
-              <ScoreSection
-                data={data}
-                group={group}
-                totalScore={totalScore}
-                usePetRank={usePetRank}
-              />
-            </Box>
-          );
-          accum.push(
-            <MouseOverPopover tooltip={groupTooltip} key={(1 + index) * 9001}>
-              Group {index + 1} Damage: {displayedDamage}
-            </MouseOverPopover>
-          );
-          accum.push(
-            <Grid container spacing={1} key={index}>
-              {!!group &&
-                group.map((petData, idx) => {
-                  const { ID } = petData;
-                  const staticPetData = petNameArray.find(
-                    (staticPetDatum) => staticPetDatum.petId === ID
-                  );
-
-                  if (staticPetData === undefined) {
-                    console.info({ petData, petNameArray });
-                    throw new Error(
-                      `Could not find petId ${ID} in array "petNameArray" did the game update and add pets?`
-                    );
-                  }
-
-                  return (
-                    <Grid item xs={3} key={idx}>
-                      <PetItem
-                        key={ID}
-                        petData={staticPetData}
-                        data={data}
-                        isSelected={true}
-                        onClick={() => {}}
-                      />
-                    </Grid>
-                  );
-                })}
-            </Grid>
-          );
-          return accum;
-        }, [])}
+        {paddedGroups.map((group, index) => {
+          if (group) {
+            return <GroupSection group={group} index={index} key={index} />;
+          }
+          return <EmptyGroupSection index={index} key={index} />;
+        })}
       </div>
       <div className="grid-right">
         <Typography variant={"h5"}>
