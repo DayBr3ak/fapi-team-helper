@@ -175,7 +175,7 @@ function findCombinationsMemoSorted(array, usePetRank = false) {
     return $findCombinationsMemoSorted[usePetRank.toString()];
   }
 
-  const combs = findCombinationsMemo(array);
+  const combs = findCombinationsMemo(array).slice();
   combs.sort((groupA, groupB) => {
     const scoreA = calculateGroupScore(groupA);
     const scoreB = calculateGroupScore(groupB);
