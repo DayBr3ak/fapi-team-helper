@@ -9,6 +9,16 @@ function makeUniqStr(idToInclude, usePetRank) {
 let worker;
 const pendings = {};
 let rid = 0;
+
+function makeWorker() {
+  worker = Worker();
+  worker.onmessage = function (e) {
+    console.log("Message received from worker", e, e.data.rid);
+    pendings[e.data.rid]?.(e.data.payload);
+    delete pendings[e.data.rid];
+  };
+}
+
 export async function findBestGroupsAsync(
   petsCollection,
   idToInclude,
@@ -16,12 +26,7 @@ export async function findBestGroupsAsync(
 ) {
   if (!worker) {
     // init worker if first call
-    worker = Worker();
-    worker.onmessage = function (e) {
-      console.log("Message received from worker", e, e.data.rid);
-      pendings[e.data.rid]?.(e.data.payload);
-      delete pendings[e.data.rid];
-    };
+    makeWorker();
   }
 
   const uniqStr = makeUniqStr(idToInclude, usePetRank);
