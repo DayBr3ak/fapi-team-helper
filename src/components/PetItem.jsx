@@ -7,13 +7,7 @@ import { Box } from "@mui/material";
 import { useSelector } from "react-redux";
 import { selectUsePetRank } from "../utils/uiSlice";
 
-export default function PetItem({
-  petData,
-  isSelected,
-  onClick,
-  data,
-  petScoreFn,
-}) {
+export default function PetItem({ petData, isSelected, onClick, data }) {
   const usePetRank = useSelector(selectUsePetRank);
   if (!!data === false) {
     return null;
