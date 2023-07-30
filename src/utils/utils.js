@@ -159,10 +159,10 @@ function findCombinationsMemo(array) {
     })
     .map((group) => {
       sortGroup(group);
-      return group;
+      return Object.freeze(group);
     });
 
-  $findCombinationsMemo = r2;
+  $findCombinationsMemo = Object.freeze(r2);
   return $findCombinationsMemo;
 }
 
