@@ -142,6 +142,9 @@ export default function ExpeditionGroupTab({
   groups,
   usePetRank,
   setUsePetRank,
+
+  useMaxTokens,
+  setUseMaxTokens,
 }) {
   const data = useSelector(selectGameSaveData);
   const loading = useSelector(selectLoadingState);
@@ -174,6 +177,15 @@ export default function ExpeditionGroupTab({
           <Backdrop open={loading} sx={{ color: "#fff" }}>
             <CircularProgress color="secondary" />
           </Backdrop>
+
+          <input
+            type="checkbox"
+            id="sortBy"
+            onChange={setUseMaxTokens}
+            checked={useMaxTokens}
+            disabled={loading}
+          />
+          <label htmlFor={"sortBy"}>Maximize tokens</label>
         </div>
         {paddedGroups.map((group, index) => {
           if (group) {

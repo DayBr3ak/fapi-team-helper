@@ -17,6 +17,7 @@ import uiSlice, {
   selectCurrentTab,
   selectGameSaveData,
   selectGroups,
+  selectUseMaxTokens,
   selectUsePetRank,
 } from "../utils/uiSlice";
 
@@ -29,6 +30,7 @@ export default function TabContainer() {
   const dispatch = useDispatch();
   const data = useSelector(selectGameSaveData);
   const usePetRank = useSelector(selectUsePetRank);
+  const useMaxTokens = useSelector(selectUseMaxTokens);
 
   const groups = useSelector(selectGroups);
   const currentTab = useSelector(selectCurrentTab);
@@ -52,6 +54,12 @@ export default function TabContainer() {
     dispatch(findBestGroupAction());
   };
 
+  const onUseMaxTokensChange = (e) => {
+    const checked = e.target.checked;
+    dispatch(uiSlice.actions.setUseMaxTokens(checked));
+    dispatch(findBestGroupAction());
+  };
+
   const selectComponent = () => {
     switch (currentTab) {
       // case TAB_COMBO_LIST:
@@ -64,6 +72,8 @@ export default function TabContainer() {
             groups={groups}
             usePetRank={usePetRank}
             setUsePetRank={onUsePetRankChange}
+            useMaxTokens={useMaxTokens}
+            setUseMaxTokens={onUseMaxTokensChange}
           />
         );
       default:

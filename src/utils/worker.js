@@ -4,9 +4,14 @@ onmessage = function (e) {
   const { data } = e;
   const {
     rid,
-    payload: { petsCollection, idToInclude, usePetRank },
+    payload: { petsCollection, idToInclude, usePetRank, sortBy },
   } = data;
 
-  const result = findBestGroups(petsCollection, idToInclude, usePetRank);
+  const result = findBestGroups(
+    petsCollection,
+    idToInclude,
+    usePetRank,
+    sortBy
+  );
   this.postMessage({ rid, payload: result });
 };

@@ -1,5 +1,6 @@
 export const EXP_DMG_MOD = 0.1;
 export const EXP_TIME_MOD = 0.05;
+export const EXP_TOKEN_MOD = 0.05;
 export const SYNERGY_MOD_STEP = 0.25;
 
 export const MAX_EXPED_TEAMS = 7;
@@ -83,6 +84,8 @@ export const calculateGroupScore = (group) => {
   groupScoreNoRank *= 1 + timeCount * EXP_TIME_MOD;
   groupScoreNoRank *= synergyBonus;
 
+  const tokenModifier = tokenRewardCount * EXP_TOKEN_MOD;
+
   const ret = {
     groupScore,
     groupScoreNoRank,
@@ -96,6 +99,7 @@ export const calculateGroupScore = (group) => {
     cardXpCount,
     rpRewardCount,
     tokenRewardCount,
+    tokenMultiplier: synergyBonus * (1 + tokenModifier),
   };
   gmem[uniqStr] = ret;
   return ret;
@@ -166,26 +170,51 @@ function findCombinationsMemo(array) {
   return $findCombinationsMemo;
 }
 
-const $findCombinationsMemoSorted = {
-  true: null,
-  false: null,
-};
-function findCombinationsMemoSorted(array, usePetRank = false) {
-  if ($findCombinationsMemoSorted[usePetRank.toString()]) {
-    return $findCombinationsMemoSorted[usePetRank.toString()];
-  }
+function sortGroupsByDamage(usePetRank) {
+  return (groupA, groupB) => {
+    const scoreA = calculateGroupScore(groupA);
+    const scoreB = calculateGroupScore(groupB);
+    const iA = usePetRank ? scoreA.groupScore : scoreA.groupScoreNoRank;
+    const iB = usePetRank ? scoreB.groupScore : scoreB.groupScoreNoRank;
+    return iB - iA;
+  };
+}
 
-  const combs = findCombinationsMemo(array).slice();
-  combs.sort((groupA, groupB) => {
+function sortGroupsByTokens(usePetRank) {
+  return (groupA, groupB) => {
     const scoreA = calculateGroupScore(groupA);
     const scoreB = calculateGroupScore(groupB);
 
     const iA = usePetRank ? scoreA.groupScore : scoreA.groupScoreNoRank;
     const iB = usePetRank ? scoreB.groupScore : scoreB.groupScoreNoRank;
-    return iB - iA;
-  });
 
-  $findCombinationsMemoSorted[usePetRank.toString()] = combs;
+    if (scoreB.tokenMultiplier === scoreA.tokenMultiplier) {
+      return iB - iA;
+    }
+    return scoreB.tokenMultiplier - scoreA.tokenMultiplier;
+  };
+}
+
+const key1 = (usePetRank, sortBy) => `${usePetRank};${sortBy}`;
+const $findCombinationsMemoSorted = {};
+function findCombinationsMemoSorted(
+  array,
+  usePetRank = false,
+  sortBy = "damage"
+) {
+  const uniqKey = key1(usePetRank, sortBy);
+  if ($findCombinationsMemoSorted[uniqKey]) {
+    return $findCombinationsMemoSorted[uniqKey];
+  }
+
+  const combs = findCombinationsMemo(array).slice();
+  const sorter =
+    sortBy === "damage"
+      ? sortGroupsByDamage(usePetRank)
+      : sortGroupsByTokens(usePetRank);
+  combs.sort(sorter);
+
+  $findCombinationsMemoSorted[uniqKey] = combs;
   return combs;
 }
 
@@ -203,17 +232,26 @@ const $memBG = {};
 export const findBestGroups = (
   petsCollection,
   idToInclude,
-  usePetRank = false
+  usePetRank = false,
+  sortBy = "damage"
 ) => {
   const uniqStr =
-    idToInclude.join(";") + ";;" + (usePetRank ? "true" : "false");
+    idToInclude.join(";") +
+    ";;" +
+    (usePetRank ? "true" : "false") +
+    ";;" +
+    sortBy;
 
   if ($memBG[uniqStr]) {
     return $memBG[uniqStr];
   }
 
   const bestGroups = [];
-  const combinations = findCombinationsMemoSorted(petsCollection, usePetRank);
+  const combinations = findCombinationsMemoSorted(
+    petsCollection,
+    usePetRank,
+    sortBy
+  );
   const idToExcludes = [];
 
   for (let g = 0; g < MAX_EXPED_TEAMS; g++) {

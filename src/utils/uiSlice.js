@@ -12,6 +12,7 @@ const initialState = {
   selectedPetsForce: [],
 
   usePetRank: false,
+  useMaxTokens: false,
   includeLocked: false,
   groups: [],
   currentTab: 0,
@@ -24,14 +25,38 @@ export const findBestGroupAction = createAsyncThunk(
     const petData = state.ui.gameStateData.PetsCollection;
     const currentSelected = selectSelectedPets(state);
 
+    // const sortBy = state.ui.useMaxTokens ? "tokens" : "damage";
+
     // pre calculate the rank / no rank version. It's cached anyway, and might as well use the worker as much as possible
-    const rankFalse = findBestGroupsAsync(petData, currentSelected, false);
-    const rankTrue = findBestGroupsAsync(petData, currentSelected, true);
+    const rankFalseDmg = findBestGroupsAsync(
+      petData,
+      currentSelected,
+      false,
+      "damage"
+    );
+    const rankTrueDmg = findBestGroupsAsync(
+      petData,
+      currentSelected,
+      true,
+      "damage"
+    );
+    const rankFalseTokens = findBestGroupsAsync(
+      petData,
+      currentSelected,
+      false,
+      "tokens"
+    );
+    const rankTrueTokens = findBestGroupsAsync(
+      petData,
+      currentSelected,
+      true,
+      "tokens"
+    );
 
     if (state.ui.usePetRank) {
-      return rankTrue;
+      return state.ui.useMaxTokens ? rankTrueTokens : rankTrueDmg;
     }
-    return rankFalse;
+    return state.ui.useMaxTokens ? rankFalseTokens : rankFalseDmg;
   }
 );
 
@@ -62,6 +87,9 @@ export const uiSlice = createSlice({
     },
     setUsePetRank(state, { payload }) {
       state.usePetRank = payload;
+    },
+    setUseMaxTokens(state, { payload }) {
+      state.useMaxTokens = payload;
     },
     setCurrentTab(state, { payload }) {
       state.currentTab = payload;
@@ -106,6 +134,7 @@ export const selectSelectedPets = createSelector(
   }
 );
 export const selectUsePetRank = (state) => state.ui.usePetRank;
+export const selectUseMaxTokens = (state) => state.ui.useMaxTokens;
 export const selectIncludeLocked = (state) => state.ui.includeLocked;
 export const selectLoadingState = (state) => state.ui.loadingState;
 export const selectGroups = createSelector(selectSelf, (ui) => ui.groups);
