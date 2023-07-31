@@ -26,11 +26,7 @@ export default function PetItem({ petData, isSelected, onClick, data }) {
 
   const rank = usePetRank ? pet.Rank : 0;
   const level = pet.Level;
-  const totalScore = (
-    calculatePetBaseDamage(pet, usePetRank) *
-    data?.PetDamageBonuses *
-    5
-  ).toExponential(2);
+  const totalScore = calculatePetBaseDamage(pet, usePetRank).toExponential(2);
 
   // const section1Bonuses = (
   //   <ul>

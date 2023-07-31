@@ -56,9 +56,6 @@ function ScoreSection({ data, group, usePetRank }) {
           Synergy: <b>{Number(synergyBonus).toFixed(2)}x</b>
         </li>
         <li>
-          PetDmgMod: <b>{Number(data?.PetDamageBonuses).toExponential(2)}</b>
-        </li>
-        <li>
           Total Token Gain: <b>{tokenRewardCount * EXP_TOKEN_MOD}</b>
         </li>
       </ul>
@@ -95,19 +92,13 @@ function GroupSection({ group, index }) {
   const score = usePetRank ? gs.groupScore : gs.groupScoreNoRank;
   const baseScore = usePetRank ? gs.baseGroupScore : gs.baseGroupScoreNoRank;
 
-  const displayedDamage = (
-    baseScore *
-    5 *
-    data?.PetDamageBonuses
-  ).toExponential(2);
+  const displayedDamage = score.toExponential(3);
 
   const clover = data.SoulGoldenClover;
   const comboValue = useSelector(selectComboValue);
   const bestHours = findBestHours(group, clover, comboValue);
 
-  const totalScore = Number(
-    Number(data?.PetDamageBonuses) * score * 5
-  ).toExponential(2);
+  const totalScore = score.toExponential(2);
   const groupTooltip = (
     <Box sx={{ padding: 1 }}>
       <h3>Group Score ({totalScore})</h3>
