@@ -6,6 +6,7 @@ import MouseOverPopover from "./MouseOverPopover";
 import { Box } from "@mui/material";
 import { useSelector } from "react-redux";
 import { selectUsePetRank } from "../utils/uiSlice";
+import { calculatePetBaseDamage } from "../utils/utils";
 
 export default function PetItem({ petData, isSelected, onClick, data }) {
   const usePetRank = useSelector(selectUsePetRank);
@@ -25,12 +26,11 @@ export default function PetItem({ petData, isSelected, onClick, data }) {
 
   const rank = usePetRank ? pet.Rank : 0;
   const level = pet.Level;
-  const totalScore = Number(
-    Number(data?.PetDamageBonuses) *
-      pet.BaseDungeonDamage *
-      (1.0 + rank * 0.05) *
-      5
-  ).toPrecision(4);
+  const totalScore = (
+    calculatePetBaseDamage(pet, usePetRank) *
+    data?.PetDamageBonuses *
+    5
+  ).toExponential(2);
 
   // const section1Bonuses = (
   //   <ul>

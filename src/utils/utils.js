@@ -2,6 +2,7 @@ export const EXP_DMG_MOD = 0.1;
 export const EXP_TIME_MOD = 0.05;
 export const EXP_TOKEN_MOD = 0.05;
 export const SYNERGY_MOD_STEP = 0.25;
+export const SOUL_CLOVER_STEP = 0.25;
 
 export const MAX_EXPED_TEAMS = 7;
 
@@ -9,11 +10,11 @@ export const PROJECT_PATH = "/fapi-team-helper";
 
 export function calculatePetBaseDamage(pet, usePetRank = false) {
   const rankCount = usePetRank ? pet?.Rank : 0;
-  const result = (pet?.BaseDungeonDamage / 4.0) * (rankCount + 20);
+  const result = pet?.BaseDungeonDamage * (1.0 + rankCount * 0.05);
   return result;
 }
 
-function makeUniqStrGroup(group) {
+export function makeUniqStrGroup(group) {
   return group.map((x) => x.ID).join(";");
 }
 
@@ -296,4 +297,29 @@ export function indexPetData(petData) {
     accum[parseInt(item.ID, 10)] = item;
     return accum;
   }, {});
+}
+
+export function findBestHours(group, clover = 0, combo = 1.0) {
+  const gs = calculateGroupScore(group);
+  const tokenHR =
+    gs.tokenMultiplier * Math.pow(1 + SOUL_CLOVER_STEP, clover) * combo;
+  const bestArr = [];
+
+  for (let hours = 1; hours <= 12; hours++) {
+    const totalTokens = tokenHR * hours;
+    const floored = Math.floor(totalTokens);
+    const efficiency = floored / totalTokens;
+    const waste = totalTokens - floored;
+
+    bestArr.push({
+      tokenHR: tokenHR,
+      waste,
+      hours,
+      totalTokens,
+      floored,
+      efficiency,
+    });
+  }
+  bestArr.sort((a, b) => a.waste - b.waste);
+  return bestArr;
 }

@@ -1,3 +1,4 @@
+// @ts-check
 import React, { useMemo } from "react";
 import Grid from "@mui/material/Grid";
 
@@ -9,26 +10,34 @@ import Typography from "@mui/material/Typography";
 import {
   EXP_DMG_MOD,
   EXP_TIME_MOD,
+  EXP_TOKEN_MOD,
   MAX_EXPED_TEAMS,
   calculateGroupScore,
   calculatePetBaseDamage,
+  findBestHours,
+  makeUniqStrGroup,
 } from "../utils/utils";
 import { Backdrop, Box, CircularProgress } from "@mui/material";
-import { useSelector } from "react-redux";
-import { selectGameSaveData, selectLoadingState } from "../utils/uiSlice";
+import { useDispatch, useSelector } from "react-redux";
+import uiSlice, {
+  selectComboValue,
+  selectGameSaveData,
+  selectLoadingState,
+  selectUsePetRank,
+} from "../utils/uiSlice";
 
-function ScoreSection({ data, group, totalScore, usePetRank }) {
+function ScoreSection({ data, group, usePetRank }) {
   const {
     baseGroupScore,
     dmgCount,
     timeCount,
     synergyBonus,
     baseGroupScoreNoRank,
+    tokenRewardCount,
   } = calculateGroupScore(group);
   return (
     <>
       <ul>
-        {/* <li>{Number(totalScore).toExponential(2)}&nbsp;~=&nbsp; 5 *</li> */}
         <li>
           Gr BaseDmg:{" "}
           <b>
@@ -48,6 +57,9 @@ function ScoreSection({ data, group, totalScore, usePetRank }) {
         </li>
         <li>
           PetDmgMod: <b>{Number(data?.PetDamageBonuses).toExponential(2)}</b>
+        </li>
+        <li>
+          Total Token Gain: <b>{tokenRewardCount * EXP_TOKEN_MOD}</b>
         </li>
       </ul>
     </>
@@ -77,16 +89,21 @@ function EmptyGroupSection({ index }) {
 }
 
 function GroupSection({ group, index }) {
+  const usePetRank = useSelector(selectUsePetRank);
   const data = useSelector(selectGameSaveData);
   const gs = calculateGroupScore(group);
   const score = usePetRank ? gs.groupScore : gs.groupScoreNoRank;
-  const displayedDamage = group
-    .map(
-      (pet) =>
-        calculatePetBaseDamage(pet, usePetRank) * 5 * data?.PetDamageBonuses
-    )
-    .reduce((accum, dmg) => (accum += dmg), Number(0))
-    .toExponential(2);
+  const baseScore = usePetRank ? gs.baseGroupScore : gs.baseGroupScoreNoRank;
+
+  const displayedDamage = (
+    baseScore *
+    5 *
+    data?.PetDamageBonuses
+  ).toExponential(2);
+
+  const clover = data.SoulGoldenClover;
+  const comboValue = useSelector(selectComboValue);
+  const bestHours = findBestHours(group, clover, comboValue);
 
   const totalScore = Number(
     Number(data?.PetDamageBonuses) * score * 5
@@ -94,20 +111,40 @@ function GroupSection({ group, index }) {
   const groupTooltip = (
     <Box sx={{ padding: 1 }}>
       <h3>Group Score ({totalScore})</h3>
-      <ScoreSection
-        data={data}
-        group={group}
-        totalScore={totalScore}
-        usePetRank={usePetRank}
-      />
+      <ScoreSection data={data} group={group} usePetRank={usePetRank} />
     </Box>
+  );
+
+  const bestHoursBox = (
+    <select>
+      {bestHours.map((best) => {
+        return (
+          <option
+            key={
+              best.hours +
+              ";" +
+              makeUniqStrGroup(group) +
+              `${comboValue},${clover}`
+            }
+            value={best.hours}
+          >{`${best.hours} hours creating ${
+            best.floored
+          } (${best.totalTokens.toPrecision(
+            4
+          )}) tokens wasting ${best.waste.toPrecision(4)} tokens`}</option>
+        );
+      })}
+    </select>
   );
 
   return (
     <>
       <MouseOverPopover tooltip={groupTooltip}>
-        Group {index + 1} Damage: {displayedDamage}
+        <h3>
+          Group {index + 1} Damage: {displayedDamage}
+        </h3>
       </MouseOverPopover>
+      <h4>{bestHoursBox}</h4>
       <Grid container spacing={1}>
         {group.map((petData) => {
           const { ID } = petData;
@@ -146,8 +183,10 @@ export default function ExpeditionGroupTab({
   useMaxTokens,
   setUseMaxTokens,
 }) {
+  const dispatch = useDispatch();
   const data = useSelector(selectGameSaveData);
   const loading = useSelector(selectLoadingState);
+  const comboValue = useSelector(selectComboValue);
 
   const paddedGroups = useMemo(() => {
     const n = groups.slice();
@@ -156,6 +195,10 @@ export default function ExpeditionGroupTab({
     }
     return n;
   }, [groups]);
+
+  const onComboChange = (e) => {
+    dispatch(uiSlice.actions.setComboValue(e.target.value));
+  };
 
   if (!!data === false || !!data.PetsCollection === false) {
     return <div>Loading...</div>; // You can replace this with null or another element if you prefer
@@ -167,6 +210,7 @@ export default function ExpeditionGroupTab({
         <Typography variant={"h5"}>Best Teams</Typography>
         <div>
           <input
+            className="mr-1em"
             type="checkbox"
             id="usePetRank"
             onChange={setUsePetRank}
@@ -177,8 +221,11 @@ export default function ExpeditionGroupTab({
           <Backdrop open={loading} sx={{ color: "#fff" }}>
             <CircularProgress color="secondary" />
           </Backdrop>
+        </div>
 
+        <div>
           <input
+            className="mr-1em"
             type="checkbox"
             id="sortBy"
             onChange={setUseMaxTokens}
@@ -186,6 +233,20 @@ export default function ExpeditionGroupTab({
             disabled={loading}
           />
           <label htmlFor={"sortBy"}>Maximize tokens</label>
+        </div>
+
+        <div>
+          <select
+            id="combo"
+            value={comboValue}
+            className="mr-1em"
+            onChange={onComboChange}
+          >
+            <option value="1.0">1.0</option>
+            <option value="1.1">1.1</option>
+            <option value="1.2">1.2</option>
+          </select>
+          <label htmlFor={"combo"}>Expedition Reward Combo</label>
         </div>
         {paddedGroups.map((group, index) => {
           if (group) {

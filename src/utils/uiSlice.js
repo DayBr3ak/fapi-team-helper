@@ -13,6 +13,7 @@ const initialState = {
 
   usePetRank: false,
   useMaxTokens: false,
+  comboValue: 1.0,
   includeLocked: false,
   groups: [],
   currentTab: 0,
@@ -91,6 +92,9 @@ export const uiSlice = createSlice({
     setUseMaxTokens(state, { payload }) {
       state.useMaxTokens = payload;
     },
+    setComboValue(state, { payload }) {
+      state.comboValue = +payload;
+    },
     setCurrentTab(state, { payload }) {
       state.currentTab = payload;
     },
@@ -135,6 +139,7 @@ export const selectSelectedPets = createSelector(
 );
 export const selectUsePetRank = (state) => state.ui.usePetRank;
 export const selectUseMaxTokens = (state) => state.ui.useMaxTokens;
+export const selectComboValue = (state) => state.ui.comboValue;
 export const selectIncludeLocked = (state) => state.ui.includeLocked;
 export const selectLoadingState = (state) => state.ui.loadingState;
 export const selectGroups = createSelector(selectSelf, (ui) => ui.groups);

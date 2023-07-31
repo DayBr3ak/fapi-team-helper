@@ -53,5 +53,9 @@ body {
 
 .grid-left {
   display: grid;
-  grid-row-gap: 16px;
+  grid-row-gap: 8px;
+}
+
+.mr-1em {
+  margin-right: 1em;
 }
