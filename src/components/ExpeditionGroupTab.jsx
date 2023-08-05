@@ -139,9 +139,7 @@ function GroupSection({ group, index }) {
       <Grid container spacing={1}>
         {group.map((petData) => {
           const { ID } = petData;
-          const staticPetData = petNameArray.find(
-            (staticPetDatum) => staticPetDatum.petId === ID
-          );
+          const staticPetData = petNameArray.find((pet) => pet.petId === ID);
 
           if (staticPetData === undefined) {
             console.info({ petData, petNameArray });
