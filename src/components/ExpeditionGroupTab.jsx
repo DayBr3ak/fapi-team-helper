@@ -95,8 +95,14 @@ function GroupSection({ group, index }) {
   const displayedDamage = score.toExponential(3);
 
   const clover = data.SoulGoldenClover;
+  const expeditionTokenBonuses = data.ExpeditionTokenBonuses ?? 1.0;
   const comboValue = useSelector(selectComboValue);
-  const bestHours = findBestHours(group, clover, comboValue);
+  const bestHours = findBestHours(
+    group,
+    clover,
+    comboValue,
+    expeditionTokenBonuses
+  );
 
   const totalScore = score.toExponential(2);
   const groupTooltip = (
@@ -115,7 +121,7 @@ function GroupSection({ group, index }) {
               best.hours +
               ";" +
               makeUniqStrGroup(group) +
-              `${comboValue},${clover}`
+              `${comboValue},${clover},${expeditionTokenBonuses}`
             }
             value={best.hours}
           >{`${best.hours} hours creating ${

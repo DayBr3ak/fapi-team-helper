@@ -299,10 +299,18 @@ export function indexPetData(petData) {
   }, {});
 }
 
-export function findBestHours(group, clover = 0, combo = 1.0) {
+export function findBestHours(
+  group,
+  clover = 0,
+  combo = 1.0,
+  expeditionTokenBonuses = 1.0
+) {
   const gs = calculateGroupScore(group);
   const tokenHR =
-    gs.tokenMultiplier * Math.pow(1 + SOUL_CLOVER_STEP, clover) * combo;
+    gs.tokenMultiplier *
+    Math.pow(1 + SOUL_CLOVER_STEP, clover) *
+    combo *
+    expeditionTokenBonuses;
   const bestArr = [];
 
   for (let hours = 1; hours <= 12; hours++) {
@@ -312,7 +320,7 @@ export function findBestHours(group, clover = 0, combo = 1.0) {
     const waste = totalTokens - floored;
 
     bestArr.push({
-      tokenHR: tokenHR,
+      tokenHR,
       waste,
       hours,
       totalTokens,
